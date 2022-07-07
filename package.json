@@ -1,0 +1,19 @@
+{
+  "name": "employee-manager",
+  "version": "1.0.0",
+  "description": "A program that allows you to create and store employee information using a database in the backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LonelyOrphan/employee-manager.git"
+  },
+  "author": "Natasha Sunita",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LonelyOrphan/employee-manager/issues"
+  },
+  "homepage": "https://github.com/LonelyOrphan/employee-manager#readme"
+}
