@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/LonelyOrphan/employee-manager#readme",
   "dependencies": {
+    "inquirer": "^8.2.4",
     "mysql": "^2.18.1"
   }
 }
