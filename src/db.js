@@ -1,18 +1,20 @@
-// Initialise and include db creds
-const mysql = require("mysql");
+const mysql = require("mysql2");
+const cTable = require("console.table");
 
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "newt",
+  database: "employee_db",
 });
 
-db.connect((err) => {
-  if (err) throw err;
-  console.log("Connected!");
-  /*Create a database named "mydb":*/
-  db.query("CREATE DATABASE employee_db", (err, result) => {
-    if (err) throw err;
-    console.log("Database created");
-  });
-});
+module.exports = {
+  departments: () => {
+    return db.query(
+      "SELECT * FROM `departments`",
+      function (err, results, fields) {
+        console.table(results); // results contains rows returned by server
+      }
+    );
+  },
+};
