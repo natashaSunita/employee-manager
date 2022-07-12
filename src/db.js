@@ -10,9 +10,7 @@ const db = mysql.createConnection({
 
 module.exports = {
   departments: () => {
-    return db.query("SELECT * FROM `departments`", function (err, results) {
-      console.table(results); // results contains rows returned by db
-    });
+    return db.promise().query("SELECT * FROM `departments`");
   },
   roles: () => {
     return db.query("SELECT * FROM `roles`", function (err, results) {

@@ -20,7 +20,22 @@ const home = () => {
   ]);
 };
 
-const back = () => {};
+const back = () => {
+  return inquirer
+    .prompt([
+      {
+        type: "list",
+        message: "Go back?",
+        choices: ["Yes", "No"],
+        name: "back",
+      },
+    ])
+    .then((choice) => {
+      if (choice.back == "Yes") {
+        questions();
+      }
+    });
+};
 
 const addDepartment = () => {
   return inquirer
@@ -40,8 +55,10 @@ const addDepartment = () => {
 // Step after Home
 const nextStep = (choice) => {
   if (choice.home == "View all Departments") {
-    db.departments();
-    back();
+    db.departments().then(([results]) => {
+      console.table(results);
+      back();
+    });
   }
   if (choice.home == "View all Roles") {
     db.roles();
