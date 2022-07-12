@@ -24,4 +24,13 @@ module.exports = {
       console.table(results); // results contains rows returned by db
     });
   },
+  addDepartment: (departmentName) => {
+    db.query(
+      `INSERT INTO departments (name) VALUES ("${departmentName}")`,
+      function (err, result) {
+        if (err) throw err;
+        console.log("1 Department added");
+      }
+    );
+  },
 };

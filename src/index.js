@@ -20,10 +20,28 @@ const home = () => {
   ]);
 };
 
+const back = () => {};
+
+const addDepartment = () => {
+  return inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "Enter the Department name:",
+        name: "departmentName",
+      },
+    ])
+    .then((answer) => {
+      // Run query building function and insert departmentname
+      db.addDepartment(answer.departmentName);
+    });
+};
+
 // Step after Home
 const nextStep = (choice) => {
   if (choice.home == "View all Departments") {
     db.departments();
+    back();
   }
   if (choice.home == "View all Roles") {
     db.roles();
