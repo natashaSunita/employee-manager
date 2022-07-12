@@ -1,12 +1,5 @@
 const db = require("./db.js");
 const inquirer = require("inquirer");
-// formats tables in console output
-// const cTable = require("console.table");
-
-// View departments in db
-// const viewDepartments = () => {
-//   db.departments();
-// };
 
 const home = () => {
   return inquirer.prompt([
@@ -33,10 +26,10 @@ const nextStep = (choice) => {
     db.departments();
   }
   if (choice.home == "View all Roles") {
-    viewRoles();
+    db.roles();
   }
   if (choice.home == "View all Employees") {
-    viewEmployees();
+    db.employees();
   }
   if (choice.home == "Add a Department") {
     addDepartment();

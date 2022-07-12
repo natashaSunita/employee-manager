@@ -10,11 +10,18 @@ const db = mysql.createConnection({
 
 module.exports = {
   departments: () => {
-    return db.query(
-      "SELECT * FROM `departments`",
-      function (err, results, fields) {
-        console.table(results); // results contains rows returned by server
-      }
-    );
+    return db.query("SELECT * FROM `departments`", function (err, results) {
+      console.table(results); // results contains rows returned by db
+    });
+  },
+  roles: () => {
+    return db.query("SELECT * FROM `roles`", function (err, results) {
+      console.table(results); // results contains rows returned by db
+    });
+  },
+  employees: () => {
+    return db.query("SELECT * FROM `employees`", function (err, results) {
+      console.table(results); // results contains rows returned by db
+    });
   },
 };
