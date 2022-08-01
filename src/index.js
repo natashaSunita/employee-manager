@@ -1,5 +1,45 @@
-const db = require("./db.js");
 const inquirer = require("inquirer");
+const mysql = require("mysql2");
+const cTable = require("console.table");
+
+const db = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "newt",
+  database: "employee_db",
+});
+
+const query = {
+  departments: () => {
+    return db.promise().query("SELECT * FROM `departments`");
+  },
+  roles: () => {
+    return db.promise().query("SELECT * FROM `roles`");
+  },
+  employees: () => {
+    return db.promise().query("SELECT * FROM `employees`");
+  },
+  newDepartment: (departmentName) => {
+    db.query(
+      `INSERT INTO departments (name) VALUES ("${departmentName}")`,
+      function (err, result) {
+        if (err) throw err;
+        console.log(`Added ${departmentName} to Departments`);
+        back();
+      }
+    );
+  },
+  newEmployee: (employeeName) => {
+    db.query(
+      `INSERT INTO employees (name) VALUES ("${employeeName}")`,
+      function (err, result) {
+        if (err) throw err;
+        console.log(`Added ${employeeName} to Employees`);
+        back();
+      }
+    );
+  },
+};
 
 const home = () => {
   return inquirer.prompt([
@@ -26,7 +66,7 @@ const back = () => {
       {
         type: "list",
         message: "Go back?",
-        choices: ["Yes", "No"],
+        choices: ["Yes"],
         name: "back",
       },
     ])
@@ -47,24 +87,70 @@ const addDepartment = () => {
       },
     ])
     .then((answer) => {
-      // Run query building function and insert departmentname
-      db.addDepartment(answer.departmentName);
+      query.newDepartment(answer.departmentName);
+    });
+};
+
+const addEmployee = () => {
+  const deptsArr = [];
+  query.departments().then(([results]) => {
+    results.map((x) => deptsArr.push(x.name));
+  });
+  return inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "Enter the Employee's first name:",
+        name: "fName",
+      },
+      {
+        type: "input",
+        message: "Enter the Employee's last name:",
+        name: "lName",
+      },
+      {
+        type: "list",
+        message: "Which department does the employee belong to?",
+        choices: deptsArr,
+        name: "managerEmail",
+      },
+      {
+        type: "input",
+        message: "Enter the Manager's office number:",
+        name: "officeNumber",
+      },
+    ])
+    .then((answer) => {
+      const manager = new Manager(
+        answer.managerName,
+        answer.managerId,
+        answer.managerEmail,
+        answer.officeNumber
+      );
+      employeeRoster.push(manager);
+      questions();
     });
 };
 
 // Step after Home
 const nextStep = (choice) => {
   if (choice.home == "View all Departments") {
-    db.departments().then(([results]) => {
+    query.departments().then(([results]) => {
       console.table(results);
       back();
     });
   }
   if (choice.home == "View all Roles") {
-    db.roles();
+    query.roles().then(([results]) => {
+      console.table(results);
+      back();
+    });
   }
   if (choice.home == "View all Employees") {
-    db.employees();
+    query.employees().then(([results]) => {
+      console.table(results);
+      back();
+    });
   }
   if (choice.home == "Add a Department") {
     addDepartment();

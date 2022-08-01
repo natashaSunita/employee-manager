@@ -13,21 +13,17 @@ module.exports = {
     return db.promise().query("SELECT * FROM `departments`");
   },
   roles: () => {
-    return db.query("SELECT * FROM `roles`", function (err, results) {
-      console.table(results); // results contains rows returned by db
-    });
+    return db.promise().query("SELECT * FROM `roles`");
   },
   employees: () => {
-    return db.query("SELECT * FROM `employees`", function (err, results) {
-      console.table(results); // results contains rows returned by db
-    });
+    return db.promise().query("SELECT * FROM `employees`");
   },
   addDepartment: (departmentName) => {
     db.query(
       `INSERT INTO departments (name) VALUES ("${departmentName}")`,
       function (err, result) {
         if (err) throw err;
-        console.log("1 Department added");
+        console.log(`Added ${departmentName} to Departments.`);
       }
     );
   },
