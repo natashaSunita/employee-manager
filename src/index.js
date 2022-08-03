@@ -2,6 +2,7 @@ const inquirer = require("inquirer");
 const mysql = require("mysql2");
 const cTable = require("console.table");
 
+// Connect to database
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -9,6 +10,7 @@ const db = mysql.createConnection({
   database: "employee_db",
 });
 
+// Query the database
 const query = {
   departments: () => {
     return db.promise().query("SELECT * FROM `departments`");
@@ -31,7 +33,8 @@ const query = {
   },
   newEmployee: (employeeName) => {
     db.query(
-      `INSERT INTO employees (name) VALUES ("${employeeName}")`,
+      `INSERT INTO employees (first_name, last_name, department_id, role_id, manager_id) 
+      VALUES ("${employeeName}")`,
       function (err, result) {
         if (err) throw err;
         console.log(`Added ${employeeName} to Employees`);
@@ -41,6 +44,7 @@ const query = {
   },
 };
 
+// Home Screen
 const home = () => {
   return inquirer.prompt([
     {
@@ -60,6 +64,7 @@ const home = () => {
   ]);
 };
 
+// Go back
 const back = () => {
   return inquirer
     .prompt([
@@ -77,6 +82,7 @@ const back = () => {
     });
 };
 
+// Add a Department
 const addDepartment = () => {
   return inquirer
     .prompt([
@@ -91,45 +97,107 @@ const addDepartment = () => {
     });
 };
 
+// Add an Employee
 const addEmployee = () => {
   const deptsArr = [];
+  const rolesArr = [];
+  const managersArr = [];
+  // const getFullName = (results) => {
+  //   const employees = [arr.first_name, item.last_name].join(" ");
+  // };
   query.departments().then(([results]) => {
     results.map((x) => deptsArr.push(x.name));
   });
-  return inquirer
-    .prompt([
-      {
-        type: "input",
-        message: "Enter the Employee's first name:",
-        name: "fName",
-      },
-      {
-        type: "input",
-        message: "Enter the Employee's last name:",
-        name: "lName",
-      },
-      {
-        type: "list",
-        message: "Which department does the employee belong to?",
-        choices: deptsArr,
-        name: "managerEmail",
-      },
-      {
-        type: "input",
-        message: "Enter the Manager's office number:",
-        name: "officeNumber",
-      },
-    ])
-    .then((answer) => {
-      const manager = new Manager(
-        answer.managerName,
-        answer.managerId,
-        answer.managerEmail,
-        answer.officeNumber
-      );
-      employeeRoster.push(manager);
-      questions();
-    });
+  query.roles().then(([results]) => {
+    results.map((x) => rolesArr.push(x.title));
+    // console.log(rolesArr);
+  });
+  query.employees().then(([results]) => {
+    // Add first name and last name as values in array
+    const getFullName = (results) => {
+      managersArr.push([results.first_name, results.last_name].join(" "));
+    };
+    results.map(getFullName);
+  });
+  return (
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          message: "Enter the Employee's first name:",
+          name: "fName",
+        },
+        {
+          type: "input",
+          message: "Enter the Employee's last name:",
+          name: "lName",
+        },
+        {
+          type: "list",
+          message: "Which department does the employee belong to?",
+          choices: deptsArr,
+          name: "department",
+        },
+        {
+          type: "list",
+          message: "What is the employee's role?",
+          choices: rolesArr,
+          name: "role",
+        },
+        {
+          type: "list",
+          message: "Who is the employee's manager?",
+          choices: managersArr,
+          name: "manager",
+        },
+      ])
+      // Prepare answers for insert and add to object
+      .then((answers) => {
+        const insObj = {
+          fName: answers.fName,
+          lName: answers.lName,
+        };
+        // Extract the manager's first and last name into an array
+        const managerObj = answers.manager.split(" ");
+        // Get department ID
+        db.query(
+          `SELECT id FROM departments WHERE name = "${answers.department}"`,
+          (err, result) => {
+            if (err) throw err;
+            insObj.deptId = result;
+          }
+        );
+        // Get role ID
+        db.query(
+          `SELECT id FROM roles WHERE title = "${answers.role}"`,
+          (err, result) => {
+            if (err) throw err;
+            insObj.roleId = result;
+          }
+        );
+        // Get manager ID
+        db.query(
+          `SELECT id FROM employees WHERE first_name = "${managerObj[0]}" AND last_name = "${managerObj[1]}"`,
+          (err, result) => {
+            if (err) throw err;
+            insObj.managerId = result;
+          }
+        ).then((insObj) => {
+          console.log(insObj);
+          // Insert Employee into db with values
+          // db.query(
+          //   `INSERT INTO employees (first_name, last_name, department_id, role_id, manager_id) VALUES (${insObj.fName}, ${insObj.lName},
+          //                 ${insObj.deptId}, ${insObj.roleId}, ${insObj.managerId}"`,
+          //   (err, result) => {
+          //     if (err) throw err;
+          //     console.log(
+          //       `Added ${answers.fName}, ${answers.lName} to employee list`
+          //     );
+          //   }
+          // );
+        });
+      })
+  );
 };
 
 // Step after Home
