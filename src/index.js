@@ -164,7 +164,7 @@ const addEmployee = () => {
           `SELECT id FROM departments WHERE name = "${answers.department}"`,
           (err, result) => {
             if (err) throw err;
-            insObj.deptId = result;
+            insObj.deptId = result[0].id;
           }
         );
         // Get role ID
@@ -172,30 +172,117 @@ const addEmployee = () => {
           `SELECT id FROM roles WHERE title = "${answers.role}"`,
           (err, result) => {
             if (err) throw err;
-            insObj.roleId = result;
+            insObj.roleId = result[0].id;
           }
         );
         // Get manager ID
+        db.promise()
+          .query(
+            `SELECT id FROM employees WHERE first_name = "${managerObj[0]}" AND last_name = "${managerObj[1]}"`
+          )
+          .then((result) => {
+            insObj.managerId = result[0][0].id;
+            // Insert Employee into db with values
+            db.query(
+              `INSERT INTO employees (first_name, last_name, department_id, role_id, manager_id) 
+              VALUES ("${insObj.fName}", "${insObj.lName}", "${insObj.deptId}", "${insObj.roleId}", "${insObj.managerId}")`,
+              (err, result) => {
+                if (err) throw err;
+                console.log(
+                  `Added ${answers.fName} ${answers.lName} to employee list`
+                );
+              }
+            );
+            back();
+          });
+      })
+  );
+};
+
+// Update an employee
+// const updateEmployee = () => {
+//   const employees = [];
+//   query.employees().then(([results]) => {
+//     const getFullName = (results) => {
+//       employees.push([results.first_name, results.last_name].join(" "));
+//     };
+//     results.map(getFullName);
+//   });
+//   return inquirer.prompt([
+//     {
+//       type: "list",
+//       message: "Which employee would you like to update?",
+//       choices: employees,
+//       name: "employeeName",
+//     },
+//   ]);
+// };
+
+// Update an Employee
+const updateEmployee = () => {
+  var employeeArr = [];
+  query.employees().then(([results]) => {
+    // Add first name and last name as values in array
+    const getFullName = (results) => {
+      employeeArr.push([results.first_name, results.last_name].join(" "));
+    };
+    results.map(getFullName);
+    console.log(employeeArr);
+  });
+  return (
+    inquirer
+      .prompt([
+        {
+          type: "list",
+          message: "Which employee would you like to update?",
+          choices: employeeArr,
+          name: "updateEmployee",
+        },
+      ])
+      // Prepare answers for insert and add to object
+      .then((answers) => {
+        const insObj = {
+          fName: answers.fName,
+          lName: answers.lName,
+        };
+        // Extract the manager's first and last name into an array
+        const managerObj = answers.manager.split(" ");
+        // Get department ID
         db.query(
-          `SELECT id FROM employees WHERE first_name = "${managerObj[0]}" AND last_name = "${managerObj[1]}"`,
+          `SELECT id FROM departments WHERE name = "${answers.department}"`,
           (err, result) => {
             if (err) throw err;
-            insObj.managerId = result;
+            insObj.deptId = result[0].id;
           }
-        ).then((insObj) => {
-          console.log(insObj);
-          // Insert Employee into db with values
-          // db.query(
-          //   `INSERT INTO employees (first_name, last_name, department_id, role_id, manager_id) VALUES (${insObj.fName}, ${insObj.lName},
-          //                 ${insObj.deptId}, ${insObj.roleId}, ${insObj.managerId}"`,
-          //   (err, result) => {
-          //     if (err) throw err;
-          //     console.log(
-          //       `Added ${answers.fName}, ${answers.lName} to employee list`
-          //     );
-          //   }
-          // );
-        });
+        );
+        // Get role ID
+        db.query(
+          `SELECT id FROM roles WHERE title = "${answers.role}"`,
+          (err, result) => {
+            if (err) throw err;
+            insObj.roleId = result[0].id;
+          }
+        );
+        // Get manager ID
+        db.promise()
+          .query(
+            `SELECT id FROM employees WHERE first_name = "${managerObj[0]}" AND last_name = "${managerObj[1]}"`
+          )
+          .then((result) => {
+            insObj.managerId = result[0][0].id;
+            // Insert Employee into db with values
+            db.query(
+              `INSERT INTO employees (first_name, last_name, department_id, role_id, manager_id) 
+              VALUES ("${insObj.fName}", "${insObj.lName}", "${insObj.deptId}", "${insObj.roleId}", "${insObj.managerId}")`,
+              (err, result) => {
+                if (err) throw err;
+                console.log(
+                  `Added ${answers.fName} ${answers.lName} to employee list`
+                );
+              }
+            );
+            back();
+          });
       })
   );
 };
