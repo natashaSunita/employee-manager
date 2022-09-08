@@ -1,5 +1,7 @@
 # Employee Manager ![Github licence](https://img.shields.io/badge/GNU-License-orange)
 
+Walkthrough Video: https://screencast-o-matic.com/watch/c3jDInVT1c0
+
 ## Table of Contents
 
 - [Description](#description)
